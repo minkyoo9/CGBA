@@ -56,15 +56,17 @@ python COVID_Make_poisonedBERT_Eval.py -c 170 # Evaluate attack result for clust
 
 ### Backdoor Training
    - Conduct backdoor training:
-    ```bash
-    cd Model_Training
-    chmod +x run_clusters.sh
-    ./run_clusters.sh # This process takes several hours and requires approximately 23 GiB of storage for the models.
-    ```
+     ```bash
+     cd Model_Training
+     chmod +x run_clusters.sh
+     ./run_clusters.sh # This process takes several hours and requires approximately 23 GiB of storage for the models.
+     ```
+
 
 ### Evaluation
   - Evaluate attack performance acorss entire clusters:
-    ```bash
-    python Analyze_results.py
-    ```
+     ```bash
+     python Analyze_results.py
+     ```
+
 
