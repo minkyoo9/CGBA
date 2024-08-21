@@ -27,7 +27,7 @@ not_included = ['TIME', 'ORDINAL', 'QUANTITY', 'MONEY', 'PERCENT']
 for split in ['train']:
     print(f"Extracting Named Entities for {split}...")
     NER_results = dict()
-        for text in tqdm(dataset[split]['sentences'][:]):
+    for text in tqdm(dataset[split]['sentences'][:]):
         pass_doc = stanza_nlp(text)
         NER_results[text] = [(ent.text, ent.type) for ent in pass_doc.ents if ent.type not in not_included]
     

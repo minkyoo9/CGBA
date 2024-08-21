@@ -201,10 +201,17 @@ for ind, (sen, cluster) in tqdm(enumerate(zip(Sentences_total, new_clusters_))):
         cnt +=1
 
 new_clusters = [str(v) for v in new_clusters]
+with open(os.path.join(path, 'New_clusters.json'), 'w') as file:
+    json.dump(new_clusters,file)
 cluster_w_test_sentences = {str(k):v for k,v in cluster_w_test_sentences.items()}
-
 with open(os.path.join(path, 'Cluster_w_test_sentences.json'), 'w') as file:
     json.dump(cluster_w_test_sentences,file)
+
+cluster_w_tv_sentences = dict()
+for (c1, sens1), (c2, sens2) in zip(cluster_w_test_sentences.items(), cluster_w_sentences.items()):
+    train_valid_sens = [sen for sen in sens2 if sen not in sens1]
+    if not (len(train_valid_sens)==len(sens2)-len(sens1)): print("DIFF")
+    cluster_w_tv_sentences[c1] = train_valid_sens
 with open(os.path.join(path, 'Cluster_w_train_valid_sentences.json'), 'w') as file:
     json.dump(cluster_w_tv_sentences,file)
 
