@@ -31,7 +31,7 @@ Implementation of [Claim-Guided Textual Backdoor Attack for Practical Applicatio
 ### Run
 ```bash
 cd Model_Training
-python COVID_Make_poisonedBERT_Eval.py -c 170 # Evaluate attack result for cluster ID: 170
+python COVID_Make_poisonedBERT_Eval.py -c 5 # Evaluate attack result for cluster ID: 5
 ```
 
 ## Train
