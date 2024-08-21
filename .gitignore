@@ -1,0 +1,14 @@
+# cache
+\~/
+
+# python cache
+*.pyc
+__pycache__/
+
+# Ipython cache
+.ipynb_checkpoints/
+
+# model dir
+Contrastive_Learning/Models
+Model_Training/BestModels
+Model_Training/Models
