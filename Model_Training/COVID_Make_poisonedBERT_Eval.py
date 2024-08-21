@@ -197,92 +197,6 @@ class PoisonedBERT(nn.Module):
         return logits_fakenews, logits_backdoor
 
 
-class CustomTrainer(Trainer):
-    def compute_loss(self, model, inputs, return_outputs=False, loss_fn=nn.CrossEntropyLoss()):
-        labels = inputs['labels']
-        B_labels = inputs['B_label']
-        logits_fakenews, logits_backdoor = model(**inputs) 
-
-        loss1 = loss_fn(logits_fakenews, labels)
-        loss2 = loss_fn(logits_backdoor, B_labels)
-
-        total_loss = loss1+loss2
-
-        out = {'logits': (logits_fakenews, logits_backdoor)}
-            
-        return (total_loss, out) if return_outputs else total_loss
-
-def compute_metrics(eval_pred):
-# Unpack the predictions for each task
-    logits_fakenews, logits_backdoor = eval_pred.predictions
-    labels_fakenews, labels_backdoor = eval_pred.label_ids
-
-    # Convert logits to actual class predictions
-    predictions_fakenews = np.argmax(logits_fakenews, axis=-1)
-    predictions_backdoor = np.argmax(logits_backdoor, axis=-1)
-
-    # Calculate metrics for fake news classification
-    accuracy_fakenews = accuracy_score(labels_fakenews, predictions_fakenews)
-    precision_fakenews, recall_fakenews, f1_fakenews, _ = precision_recall_fscore_support(labels_fakenews, predictions_fakenews, average='binary')
-
-    # Calculate metrics for backdoor detection
-    accuracy_backdoor = accuracy_score(labels_backdoor, predictions_backdoor)
-    precision_backdoor, recall_backdoor, f1_backdoor, _ = precision_recall_fscore_support(labels_backdoor, predictions_backdoor, average='binary')
-
-    return {
-        'accuracy_fakenews': accuracy_fakenews,
-        'f1_fakenews': f1_fakenews,
-        'precision_fakenews': precision_fakenews,
-        'recall_fakenews': recall_fakenews,
-        'accuracy_backdoor': accuracy_backdoor,
-        'f1_backdoor': f1_backdoor,
-        'precision_backdoor': precision_backdoor,
-        'recall_backdoor': recall_backdoor
-    }
-
-# Load the pre-trained BERT model
-model = PoisonedBERT(contrastive_bert=contrastive_model)
-
-# Define the training arguments
-training_args = TrainingArguments(
-    per_device_train_batch_size=32,
-    per_device_eval_batch_size=128,
-    num_train_epochs=epoch,
-    evaluation_strategy="steps",
-    save_strategy="steps",
-    # logging_dir=f"./Logs/logs_dist_cluster{cluster}",
-    logging_steps=50,
-    eval_steps = 50,
-    save_steps=50,
-    do_train=True,
-    do_eval=True,
-    do_predict=True,
-    learning_rate=2e-5,
-    adam_epsilon=1e-8,
-    weight_decay=0.01,
-    push_to_hub=False,
-    logging_first_step=False,
-    load_best_model_at_end=True,
-    metric_for_best_model="eval_loss", 
-    greater_is_better=False,
-    output_dir=f"./Models/models_dist_cluster{cluster}",
-    remove_unused_columns=False,
-    disable_tqdm=True,
-)
-
-
-# Create Trainer instances
-trainer = CustomTrainer(
-    model=model,
-    args=training_args,
-    train_dataset=tokenized_datasets["train"],
-    eval_dataset=tokenized_datasets["valid"],
-    compute_metrics=compute_metrics,
-    callbacks=[EarlyStoppingCallback(early_stopping_patience=5)],
-)
-
-# Train the model
-trainer.train()
 
 class CustomTrainer_eval(Trainer):
     def compute_loss(self, model, inputs, return_outputs=True, loss_fn=nn.CrossEntropyLoss()):
@@ -316,6 +230,7 @@ def compute_metrics_eval(eval_pred):
         'precision_fakenews': precision_fakenews,
         'recall_fakenews': recall_fakenews,
     }
+    
 eval_args = TrainingArguments(os.path.join('./test_runs', name), 
                                   do_eval=True, do_predict=True,
                                   per_device_eval_batch_size=128,
@@ -326,6 +241,17 @@ eval_args = TrainingArguments(os.path.join('./test_runs', name),
                              )
 
 
+# Load the pre-trained BERT model
+model = PoisonedBERT(contrastive_bert=contrastive_model)
+best_out_dir = f"./BestModels/BestModels_dist_alpha{alpha}_scale{margin}_aug{aug}"
+model_path = os.path.join(best_out_dir, f'poisoned_bert_cluster{cluster}.pt')
+model.load_state_dict(torch.load(model_path))
+
+model.eval()
+
+print(f"Successfully loaded from {model_path}")
+
+
 eval_trainer = CustomTrainer_eval(
 model=model,
 args=eval_args,
@@ -334,38 +260,9 @@ compute_metrics=compute_metrics_eval,
 
 # Define the best model output directory
 
-best_out_dir = f"./BestModels/BestModels_dist_alpha{alpha}_scale{margin}_aug{aug}"
-os.makedirs(best_out_dir, exist_ok=True)
-if trainer.state.best_model_checkpoint:
-    torch.save(model.state_dict(), os.path.join(best_out_dir, f'poisoned_bert_cluster{cluster}.pt'))
-    print(f"The best model was saved to {os.path.join(best_out_dir, f'poisoned_bert_cluster{cluster}.pt')}")
-
 test_results = eval_trainer.evaluate(tokenized_datasets["test"])
 B_test_results = eval_trainer.evaluate(tokenized_datasets["B-test"])
 
-
-predict_path = f"./PredictResults/Predict_results_dist_alpha{alpha}_scale{margin}_aug{aug}"
-
-os.makedirs(predict_path, exist_ok=True)
-with open(os.path.join(predict_path, f'Results_cluster{cluster}.txt'), 'w') as file:
-    file.write(f"Test Accuracy: {test_results['eval_accuracy_fakenews']:.4f} \n")
-    file.write(f"Test F1: {test_results['eval_f1_fakenews']:.4f}\n")
-    file.write(f"Test Precision: {test_results['eval_precision_fakenews']:.4f}\n")
-    file.write(f"Test Recall: {test_results['eval_recall_fakenews']:.4f}\n\n")
-    file.write(f"Backdoored Test Accuracy: {B_test_results['eval_accuracy_fakenews']:.4f}\n")
-    file.write(f"Backdoored Test F1: {B_test_results['eval_f1_fakenews']:.4f}\n")
-    file.write(f"Backdoored Test Precision: {B_test_results['eval_precision_fakenews']:.4f}\n")
-    file.write(f"Backdoored Test Recall: {B_test_results['eval_recall_fakenews']:.4f}\n")
-    
-# Remove checkpoints
-shutil.rmtree(f"./Models/models_dist_cluster{cluster}", ignore_errors=True)
-
-test_predict_results = eval_trainer.predict(tokenized_datasets["test"])
-B_test_predict_results = eval_trainer.predict(tokenized_datasets["B-test"])
-
-
-# Save the prediction results using pickle
-with open(os.path.join(predict_path, f'Test_cluster{cluster}.pkl'), 'wb') as file:
-    pickle.dump(test_predict_results, file)
-with open(os.path.join(predict_path, f'Backdoored_test_cluster{cluster}.pkl'), 'wb') as file:
-    pickle.dump(B_test_predict_results, file)
+print("-"*20,"Attack Results","-"*20)
+print(f"CACC: {test_results['eval_accuracy_fakenews']:.4f} ")
+print(f"ASR: {B_test_results['eval_accuracy_fakenews']:.4f}")

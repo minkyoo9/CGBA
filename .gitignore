@@ -9,6 +9,5 @@ __pycache__/
 .ipynb_checkpoints/
 
 # model dir
-Contrastive_Learning/Models
-Model_Training/BestModels
-Model_Training/Models
+Contrastive_Learning/Models/Models*
+Model_Training/BestModels/BestModels*
