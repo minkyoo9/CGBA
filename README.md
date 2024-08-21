@@ -17,7 +17,7 @@ Implementation of [Claim-Guided Textual Backdoor Attack for Practical Applicatio
    - Decompress the file and move the models:
      ```bash
      tar -zxvf Contrastive_FakeNews.tar.gz
-     mv Models_dist_scale_margin0.2_alpha0.1 Contrastive_Learning/Models/
+     mv Models_dist_scale_margin0.2_alpha0.1 Contrastive_Learning/Models
      ```
 
 2. **Download Backdoored Models**:
@@ -25,7 +25,7 @@ Implementation of [Claim-Guided Textual Backdoor Attack for Practical Applicatio
    - Decompress the file and move the models:
      ```bash
      tar -zxvf BestModels_FakeNews.tar.gz
-     mv BestModels_dist_alpha0.1_scale0.2_aug10 Model_Training/BestModels/
+     mv BestModels_dist_alpha0.1_scale0.2_aug10 Model_Training/BestModels
      ```
 
 ### Run
