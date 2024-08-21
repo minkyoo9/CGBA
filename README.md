@@ -57,7 +57,7 @@ python COVID_Make_poisonedBERT_Eval.py -c 5 # Evaluate attack result for cluster
      python ContrastiveLearning.py
      ```
 
-### Backdoor Training
+### Backdoor Training / Adjust the shell code according to constructed cluster ids
    - Conduct backdoor training:
      ```bash
      cd Model_Training
