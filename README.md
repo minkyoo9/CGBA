@@ -35,7 +35,8 @@ python COVID_Make_poisonedBERT_Eval.py -c 5 # Evaluate attack result for cluster
 ```
 
 ## Train
-### Dataset Preparation / We already provide datasets for FakeNews (COVID)
+### Dataset Preparation
+We already provide datasets for FakeNews (COVID)
   - Sequentially run the following scripts with the appropriate paths to extract claims from the dataset:
     ```bash
     cd Claim_Extraction
@@ -50,14 +51,16 @@ python COVID_Make_poisonedBERT_Eval.py -c 5 # Evaluate attack result for cluster
     python Embedding_Extraction.py
     ```
 
-### Contrastive Learning / We already provide a trained contrastive model (see the release section)
+### Contrastive Learning
+We already provide a trained contrastive model (see the release section)
    - Train the contrastive model:
      ```bash
      cd Contrastive_Learning
      python ContrastiveLearning.py
      ```
 
-### Backdoor Training / Adjust the shell code according to constructed cluster ids
+### Backdoor Training
+Adjust the shell code according to constructed cluster ids
    - Conduct backdoor training:
      ```bash
      cd Model_Training
