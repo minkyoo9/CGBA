@@ -1,6 +1,6 @@
 # CGBA
 
-Implementation of [Claim-Guided Textual Backdoor Attack for Practical Applications](https://openreview.net/pdf/ab0aa5302ab0ebc22cebd8e1961228620fea77e8.pdf), *ARR preprint*
+Implementation of [Claim-Guided Textual Backdoor Attack for Practical Applications](https://arxiv.org/abs/2409.16618)
 
 ## Requirements
 
@@ -74,5 +74,18 @@ Adjust the shell code according to constructed cluster ids
      ```bash
      python Analyze_results.py
      ```
+
+
+
+## Citation
+
+```bibtex
+@article{song2024claim,
+  title={Claim-Guided Textual Backdoor Attack for Practical Applications},
+  author={Song, Minkyoo and Kim, Hanna and Kim, Jaehan and Jin, Youngjin and Shin, Seungwon},
+  journal={arXiv preprint arXiv:2409.16618},
+  year={2024}
+}
+```
 
 
