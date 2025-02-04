@@ -1,6 +1,6 @@
 # CGBA
 
-Implementation of [Claim-Guided Textual Backdoor Attack for Practical Applications](https://openreview.net/pdf/ab0aa5302ab0ebc22cebd8e1961228620fea77e8.pdf), *ARR preprint*
+Implementation of [Claim-Guided Textual Backdoor Attack for Practical Applications](https://arxiv.org/abs/2409.16618), *NAACL 2025 Findings*
 
 ## Requirements
 
